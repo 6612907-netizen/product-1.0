@@ -180,8 +180,8 @@
     bottom: -13px;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #A855F7 0%, #3B82F6 100%);
+    height: 3px;
+    background: linear-gradient(90deg, #6366F1 0%, #EC4899 100%);
     border-radius: 2px;
   }
 
@@ -719,6 +719,29 @@
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // 联系人点击
+    document.querySelectorAll('.contact-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // 导航栏点击
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
+ctive'));
         tab.classList.add('active');
       });
     });
