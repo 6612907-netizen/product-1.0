@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一念智能 AI 教练 - 产品 1.0</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, 'PingFang SC', sans-serif;
+    background: #FFFFFF;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ========== 左侧边栏 ========== */
+  .sidebar {
+    width: 280px;
+    background: #FFFFFF;
+    border-right: 1px solid #E5E5E5;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .logo-section {
+    padding: 16px;
+    border-bottom: 1px solid #EBEBEB;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #3370FF;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #F7F8FA;
+    border: 1px solid #EBEBEB;
+    border-radius: 8px;
+  }
+
+  .search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #1A1A1A;
+    width: 100%;
+  }
+
+  .search-box input::placeholder {
+    color: #9CA3AF;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #EBEBEB;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #9CA3AF;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .tab.active {
+    color: #1A1A1A;
+    font-weight: 600;
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #3370FF;
+  }
+
+  .contact-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .contact-group { margin-bottom: 4px; }
+
+  .contact-group-title {
+    font-size: 11px;
+    color: #9CA3AF;
+    padding: 12px 16px 4px;
+    text-transform: uppercase;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .contact-item:hover { background: #F7F8FA; }
+  .contact-item.active { background: #E8F0FE; }
+
+  .contact-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .avatar-admin { background: linear-gradient(135deg, #667EEA, #764BA2); }
+  .avatar-tech { background: linear-gradient(135deg, #6C63FF, #4FACFE); }
+  .avatar-biz { background: linear-gradient(135deg, #11998E, #38EF7D); }
+
+  .contact-info { flex: 1; min-width: 0; }
+
+  .contact-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+
+  .contact-title {
+    font-size: 11px;
+    color: #9CA3AF;
+  }
+
+  /* ========== 中央聊天区 ========== */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+  }
+
+  .chat-header {
+    height: 60px;
+    padding: 0 24px;
+    border-bottom: 1px solid #F0F0F0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6C63FF, #4FACFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .chat-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+
+  .chat-subtitle {
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    max-width: 70%;
+  }
+
+  .msg.user {
+    flex-direction: row-reverse;
+    margin-left: auto;
+  }
+
+  .msg-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .msg.coach .msg-avatar { background: linear-gradient(135deg, #6C63FF, #4FACFE); }
+  .msg.user .msg-avatar { background: #1A1A1A; }
+
+  .msg-bubble {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 14px;
+  }
+
+  .msg.coach .msg-bubble {
+    background: #F3F4F6;
+    color: #333;
+    border-radius: 2px 14px 14px 14px;
+  }
+
+  .msg.user .msg-bubble {
+    background: #3370FF;
+    color: white;
+    border-radius: 14px 2px 14px 14px;
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 4px;
+  }
+
+  /* 评估问卷样式 */
+  .quiz-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #E5E5E5;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #3370FF;
+    transition: width 0.3s;
+  }
+
+  .question-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 24px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    padding: 16px 20px;
+    background: #FFFFFF;
+    border: 2px solid #E5E5E5;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option:hover {
+    border-color: #3370FF;
+    background: #F5F8FF;
+  }
+
+  .option.selected {
+    border-color: #3370FF;
+    background: #E8F0FE;
+  }
+
+  .option-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E5E5E5;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .option.selected .option-radio {
+    border-color: #3370FF;
+    background: #3370FF;
+  }
+
+  .input-section {
+    padding: 12px 24px 16px;
+    border-top: 1px solid #EBEBEB;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #F0F0F0;
+  }
+
+  .tool-item {
+    font-size: 12px;
+    color: #6B7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .tool-item:hover {
+    background: #F3F4F6;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .input-field {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #E5E5E5;
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    font-family: inherit;
+  }
+
+  .input-field:focus {
+    border-color: #3370FF;
+  }
+
+  .send-btn {
+    padding: 12px 24px;
+    background: #3370FF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .send-btn:hover {
+    background: #2860E8;
+  }
+
+  /* 右侧边栏 */
+  .right-sidebar {
+    width: 260px;
+    background: #FFFFFF;
+    border-left: 1px solid #E5E5E5;
+    transition: width 0.3s;
+  }
+
+  .right-sidebar.collapsed {
+    width: 0;
+    overflow: hidden;
+  }
+
+  .right-header {
+    padding: 16px;
+    border-bottom: 1px solid #EBEBEB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .right-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .collapse-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #9CA3AF;
+    border-radius: 4px;
+  }
+
+  .collapse-btn:hover {
+    background: #F3F4F6;
+  }
+
+  .right-content {
+    padding: 16px;
+  }
+
+  .info-label {
+    font-size: 11px;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .info-value {
+    font-size: 13px;
+    color: #1A1A1A;
+    line-height: 1.6;
+  }
+
+  /* 页面状态 */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* 欢迎页 */
+  .welcome-page {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  }
+
+  .welcome-page.active {
+    display: flex;
+  }
+
+  .welcome-logo {
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-bottom: 24px;
+  }
+
+  .welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .welcome-subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .welcome-btn {
+    padding: 16px 48px;
+    background: white;
+    color: #667EEA;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .welcome-btn:hover {
+    transform: scale(1.02);
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <!-- 左侧边栏 -->
+    <div class="sidebar">
+      <div class="logo-section">
+        <div class="logo">
+          <div class="logo-icon">一</div>
+          <div class="logo-text">一念智能</div>
+        </div>
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="搜索...">
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">全部</div>
+        <div class="tab">在线</div>
+      </div>
+      <div class="contact-list">
+        <div class="contact-group">
+          <div class="contact-group-title">AI 教练</div>
+          <div class="contact-item active" onclick="switchChat('coach')">
+            <div class="contact-avatar avatar-tech">智</div>
+            <div class="contact-info">
+              <div class="contact-name">小智</div>
+              <div class="contact-title">AI 学习教练</div>
+            </div>
+          </div>
+        </div>
+        <div class="contact-group">
+          <div class="contact-group-title">管理</div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-admin">卢</div>
+            <div class="contact-info">
+              <div class="contact-name">卢祉辛</div>
+              <div class="contact-title">CEO</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 欢迎页 -->
+    <div class="welcome-page active" id="welcomePage">
+      <div class="welcome-logo">🧠</div>
+      <div class="welcome-title">一念智能 AI 教练</div>
+      <div class="welcome-subtitle">21 天，从 0 到 1 学会用 AI</div>
+      <button class="welcome-btn" onclick="startAssessment()">开始评估</button>
+    </div>
+
+    <!-- 评估问卷页 -->
+    <div class="chat-area page" id="quizPage">
+      <div class="chat-header">
+        <div class="chat-avatar">智</div>
+        <div>
+          <div class="chat-title">能力评估</div>
+          <div class="chat-subtitle">了解你的学习情况</div>
+        </div>
+      </div>
+      <div class="quiz-container">
+        <div class="quiz-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+          </div>
+          <div class="progress-text" id="progressText">1/5</div>
+        </div>
+        <div class="question-text" id="questionText">你之前用过 AI 工具吗？</div>
+        <div class="options" id="options"></div>
+      </div>
+    </div>
+
+    <!-- 聊天页 -->
+    <div class="chat-area page" id="chatPage">
+      <div class="chat-header">
+        <div class="chat-avatar">智</div>
+        <div>
+          <div class="chat-title">小智</div>
+          <div class="chat-subtitle">AI 学习教练 · 在线</div>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="input-section">
+        <div class="toolbar">
+          <div class="tool-item">📎 附件</div>
+          <div class="tool-item">😊 表情</div>
+          <div class="tool-item">📋 历史</div>
+        </div>
+        <div class="input-row">
+          <textarea class="input-field" id="chatInput" placeholder="输入消息..." rows="2"></textarea>
+          <button class="send-btn" onclick="sendMessage()">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧边栏 -->
+    <div class="right-sidebar" id="rightSidebar">
+      <div class="right-header">
+        <div class="right-title">学习进度</div>
+        <button class="collapse-btn" onclick="toggleRightSidebar()">✕</button>
+      </div>
+      <div class="right-content">
+        <div class="info-label">当前路线</div>
+        <div class="info-value" id="routeInfo">尚未开始</div>
+        <div class="info-label" style="margin-top: 16px">已完成</div>
+        <div class="info-value">0/21 天</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 评估问题
+    const questions = [
+      {
+        q: '你之前用过 AI 工具吗？',
+        options: ['从来没用过', '用过一两次', '偶尔在用', '经常在用']
+      },
+      {
+        q: '你想用 AI 来做什么？',
+        options: ['写文章、写报告', '做表格、数据分析', '出点子、头脑风暴', '写代码、自动化']
+      },
+      {
+        q: '你每天能投入多少时间学习 AI？',
+        options: ['10 分钟以下', '10-30 分钟', '30 分钟 -1 小时', '1 小时以上']
+      },
+      {
+        q: '你学习 AI 的主要目的是？',
+        options: ['提升工作效率', '个人成长', '做副业/创业', '纯粹好奇']
+      },
+      {
+        q: '你觉得学习 AI 最大的困难是？',
+        options: ['不知道从哪里开始', '看不懂术语', '没人教', '怕学不会']
+      }
+    ];
+
+    let currentQuestion = 0;
+    let answers = [];
+
+    // 开始评估
+    function startAssessment() {
+      document.getElementById('welcomePage').classList.remove('active');
+      document.getElementById('quizPage').classList.add('active');
+      renderQuestion();
+    }
+
+    // 渲染问题
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('questionText').textContent = q.q;
+      document.getElementById('progressText').textContent = `${currentQuestion + 1}/${questions.length}`;
+      document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+      const optionsHtml = q.options.map((opt, i) => `
+        <div class="option" onclick="selectOption(${i})">
+          <div class="option-radio"></div>
+          <span>${opt}</span>
+        </div>
+      `).join('');
+      document.getElementById('options').innerHTML = optionsHtml;
+    }
+
+    // 选择选项
+    function selectOption(index) {
+      document.querySelectorAll('.option').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+      });
+      answers[currentQuestion] = index;
+
+      setTimeout(() => {
+        if (currentQuestion < questions.length - 1) {
+          currentQuestion++;
+          renderQuestion();
+        } else {
+          completeAssessment();
+        }
+      }, 300);
+    }
+
+    // 完成评估
+    function completeAssessment() {
+      const route = calculateRoute();
+      document.getElementById('quizPage').classList.remove('active');
+      document.getElementById('chatPage').classList.add('active');
+      document.getElementById('routeInfo').textContent = route.name;
+
+      // 显示欢迎消息
+      const messages = document.getElementById('messages');
+      messages.innerHTML = `
+        <div class="msg coach">
+          <div class="msg-avatar">智</div>
+          <div>
+            <div class="msg-bubble">
+              🎉 评估完成！根据你的情况，推荐你走<strong>${route.name}</strong>路线。
+              <br><br>
+              ${route.reason}
+              <br><br>
+              准备好了吗？我们开始第一步！
+            </div>
+            <div class="msg-time">${getTime()}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 计算路线
+    function calculateRoute() {
+      if (answers[0] === 0) {
+        return { name: '从零开始', reason: '你刚从零开始，我们从最基础的概念讲起。', days: 21 };
+      } else if (answers[0] <= 2) {
+        return { name: '快速上手', reason: '你有一定基础，我们直接教你最实用的技能。', days: 14 };
+      } else {
+        return { name: '深度应用', reason: '你已经是进阶用户，我们来探索高级技巧。', days: 21 };
+      }
+    }
+
+    // 发送消息
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const messages = document.getElementById('messages');
+      const userHtml = `
+        <div class="msg user">
+          <div class="msg-avatar">我</div>
+          <div>
+            <div class="msg-bubble">${message}</div>
+            <div class="msg-time">${getTime()}</div>
+          </div>
+        </div>
+      `;
+      messages.insertAdjacentHTML('beforeend', userHtml);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      // 模拟回复
+      setTimeout(() => {
+        const coachHtml = `
+          <div class="msg coach">
+            <div class="msg-avatar">智</div>
+            <div>
+              <div class="msg-bubble">好问题！让我来帮你拆解一下...</div>
+              <div class="msg-time">${getTime()}</div>
+            </div>
+          </div>
+        `;
+        messages.insertAdjacentHTML('beforeend', coachHtml);
+        messages.scrollTop = messages.scrollHeight;
+      }, 1000);
+    }
+
+    // 获取时间
+    function getTime() {
+      const now = new Date();
+      return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+
+    // 切换右侧栏
+    function toggleRightSidebar() {
+      document.getElementById('rightSidebar').classList.toggle('collapsed');
+    }
+
+    // 切换聊天
+    function switchChat(type) {
+      if (type === 'coach') {
+        document.getElementById('welcomePage').classList.remove('active');
+        document.getElementById('chatPage').classList.add('active');
+      }
+    }
+
+    // 回车发送
+    document.getElementById('chatInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
