@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI教练 - 主页</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+    height: 100vh;
+    background: #f5f5f5;
+  }
+
+  .container {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* 左侧栏 */
+  .left-sidebar {
+    width: 280px;
+    background: #fff;
+    border-right: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .coach-list {
+    padding: 8px;
+  }
+
+  .coach-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .coach-item:hover {
+    background: #f5f5f5;
+  }
+
+  .coach-item.active {
+    background: #e8f0fe;
+  }
+
+  .coach-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3370FF 0%, #7255FF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    margin-right: 12px;
+  }
+
+  .coach-info {
+    flex: 1;
+  }
+
+  .coach-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .coach-title {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* 中央聊天区 */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    min-width: 0;
+  }
+
+  .chat-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .progress-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3370FF;
+  }
+
+  .progress-text {
+    color: #3370FF;
+    font-weight: 600;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 200px;
+  }
+
+  .message {
+    max-width: 70%;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .message.user {
+    align-self: flex-end;
+    background: #3370FF;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .message.coach {
+    align-self: flex-start;
+    background: #f0f2f5;
+    color: #333;
+    border-bottom-left-radius: 4px;
+  }
+
+  .message-time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 6px;
+  }
+
+  .message.user .message-time {
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* 图片消息 */
+  .message-image {
+    max-width: 300px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* 可调节高度的输入区 */
+  .chat-input-wrapper {
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-input-area {
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .input-container {
+    flex: 1;
+    position: relative;
+  }
+
+  .chat-input {
+    width: 100%;
+    min-height: 56px;
+    max-height: 200px;
+    padding: 14px 18px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+
+  .chat-input:focus {
+    border-color: #3370FF;
+    box-shadow: 0 0 0 3px rgba(51, 112, 255, 0.1);
+  }
+
+  .send-btn {
+    padding: 14px 24px;
+    background: #3370FF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .send-btn:hover {
+    background: #2860E8;
+  }
+
+  /* 调节把手 */
+  .resize-handle {
+    height: 6px;
+    background: #f5f5f5;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .resize-handle:hover {
+    background: #e5e5e5;
+  }
+
+  .resize-handle::after {
+    content: '';
+    width: 40px;
+    height: 3px;
+    background: #ddd;
+    border-radius: 2px;
+  }
+
+  /* 图片预览弹窗 */
+  .image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .image-modal.active {
+    display: flex;
+  }
+
+  .image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    cursor: default;
+  }
+
+  .image-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .image-modal-close:hover {
+    background: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- 左侧栏 -->
+    <div class="left-sidebar">
+      <div class="sidebar-header">我的教练</div>
+      <div class="coach-list">
+        <div class="coach-item active">
+          <div class="coach-avatar">智</div>
+          <div class="coach-info">
+            <div class="coach-name">小智</div>
+            <div class="coach-title">AI教练/助手：陪伴成长</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中央聊天区 -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <span>与教练对话</span>
+      </div>
+
+      <div class="chat-messages">
+        <div class="message coach">
+          Hi！我是小智，你的AI学习教练 🧠
+          
+          21天，我会陪着你从0到1学会用AI。
+          
+          今天感觉怎么样？我们可以聊聊你的学习目标。
+          <div class="message-time">10:30</div>
+        </div>
+        <div class="message user">
+          我想学怎么用AI写文案
+          <div class="message-time">10:31</div>
+        </div>
+        <div class="message coach">
+          太棒了！学会用AI写文案是非常实用的技能 📝
+          
+          让我先了解一下你的基础：
+          - 你之前用过AI工具吗？（如ChatGPT等）
+          - 你平时写文案多吗？主要写哪种类型的文案？
+          
+          回答完我帮你定制21天学习计划～
+          <div class="message-time">10:32</div>
+        </div>
+        <!-- 示例：图片消息 -->
+        <div class="message coach">
+          这是今天的学习资料 📋
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' fill='%23f0f0f0'%3E%3Crect width='300' height='200' fill='%23e8f0fe'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%233370FF' font-family='sans-serif' font-size='14'%3E学习资料图片%3C/text%3E%3C/svg%3E" alt="学习资料" class="message-image" onclick="openImageModal(this.src)">
+          <div class="message-time">10:33</div>
+        </div>
+      </div>
+
+      <!-- 可调节高度的输入区 -->
+      <div class="chat-input-wrapper">
+        <div class="resize-handle" id="resizeHandle"></div>
+        <div class="chat-input-area">
+          <div class="input-container">
+            <textarea class="chat-input" id="chatInput" placeholder="输入消息..." rows="3"></textarea>
+          </div>
+          <button class="send-btn">发送</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 图片预览弹窗 -->
+  <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+    <div class="image-modal-close">×</div>
+    <img id="modalImage" src="" alt="预览">
+  </div>
+
+  <script>
+    const resizeHandle = document.getElementById('resizeHandle');
+    const chatMessages = document.querySelector('.chat-messages');
+    const chatInput = document.getElementById('chatInput');
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+
+    let isResizing = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startY = e.clientY;
+      startHeight = chatMessages.offsetHeight;
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const delta = startY - e.clientY;
+      const newHeight = startHeight + delta;
+      if (newHeight >= 100 && newHeight <= 600) {
+        chatMessages.style.height = newHeight + 'px';
+        chatMessages.style.flex = 'none';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+
+    // 输入框自动增高
+    chatInput.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + 'px';
+    });
+
+    // 图片预览弹窗
+    function openImageModal(src) {
+      modalImage.src = src;
+      imageModal.classList.add('active');
+    }
+
+    function closeImageModal() {
+      imageModal.classList.remove('active');
+      modalImage.src = '';
+    }
+
+    // ESC 关闭弹窗
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeImageModal();
+      }
+    });
+  </script>
+</body>
+</html>
