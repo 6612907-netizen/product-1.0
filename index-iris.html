@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一念智能 AI 教练</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366F1;
+      --primary-light: #818CF8;
+      --primary-dark: #4F46E5;
+      --warm-bg: #FEF3C7;
+      --warm-orange: #F59E0B;
+      --text-dark: #1F2937;
+      --text-gray: #6B7280;
+      --text-light: #9CA3AF;
+      --bg-light: #F9FAFB;
+      --white: #FFFFFF;
+      --border: #E5E7EB;
+      --success: #10B981;
+      --wechat-green: #07C160;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* 通用样式 */
+    .container {
+      padding: 24px 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    /* 页面 1: 欢迎页 */
+    .welcome-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .welcome-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .welcome-logo {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, var(--warm-bg) 0%, #FEF9C3 100%);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2);
+    }
+
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+
+    .welcome-features {
+      padding: 0 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: var(--white);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 14px;
+    }
+
+    .feature-icon.blue { background: #DBEAFE; }
+    .feature-icon.orange { background: var(--warm-bg); }
+    .feature-icon.green { background: #D1FAE5; }
+
+    .feature-text {
+      flex: 1;
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .welcome-footer {
+      padding: 24px 20px 40px;
+    }
+
+    /* 页面 2: 评估问卷 */
+    .quiz-page {
+      display: none;
+    }
+
+    .quiz-header {
+      padding: 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .quiz-progress {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-left: 12px;
+      min-width: 50px;
+    }
+
+    .quiz-question {
+      padding: 24px 20px;
+    }
+
+    .question-number {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      padding: 18px 20px;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .option:hover {
+      border-color: var(--primary-light);
+      background: #F5F3FF;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background: #F5F3FF;
+    }
+
+    .option-radio {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      margin-right: 14px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .option.selected .option-radio {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .option.selected .option-radio::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: var(--white);
+      border-radius: 50%;
+    }
+
+    .quiz-footer {
+      padding: 20px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      position: sticky;
+      bottom: 0;
+    }
+
+    /* 页面 3: 推荐路线 */
+    .route-page {
+      display: none;
+    }
+
+    .route-header {
+      text-align: center;
+      padding: 40px 20px 24px;
+      background: linear-gradient(180deg, #F5F3FF 0%, var(--white) 100%);
+    }
+
+    .route-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: var(--white);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .route-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .route-desc {
+      font-size: 14px;
+      color: var(--text-gray);
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .route-timeline {
+      padding: 24px 20px;
+    }
+
+    .timeline-item {
+      display: flex;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 48px;
+      bottom: -24px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-item:last-child::before {
+      display: none;
+    }
+
+    .timeline-day {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-day.completed {
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--white);
+    }
+
+    .timeline-day.current {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .timeline-content {
+      flex: 1;
+      padding-top: 4px;
+    }
+
+    .timeline-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+
+    .route-footer {
+      padding: 20px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+    }
+
+    /* 页面 4: AI 对话界面 */
+    .chat-page {
+      display: none;
+      min-height: 100vh;
+      background: #F5F5F5;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 18px;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .chat-info {
+      flex: 1;
+    }
+
+    .chat-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .chat-status {
+      font-size: 12px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .chat-messages {
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .message.ai {
+      justify-content: flex-start;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .message.ai .message-avatar {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: var(--white);
+      margin-right: 10px;
+    }
+
+    .message.user .message-avatar {
+      background: #E5E7EB;
+      color: var(--text-gray);
+      margin-left: 10px;
+      order: 2;
+    }
+
+    .message-content {
+      max-width: 75%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .message.ai .message-content {
+      background: var(--white);
+      color: var(--text-dark);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .message.user .message-content {
+      background: var(--wechat-green);
+      color: var(--white);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 6px;
+    }
+
+    .message.ai .message-time {
+      margin-left: 46px;
+    }
+
+    .chat-input-area {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      padding: 12px 16px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: var(--bg-light);
+      border: none;
+      border-radius: 20px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-light);
+    }
+
+    .chat-send {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      color: var(--white);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 导航指示器 */
+    .nav-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-dot.active {
+      background: var(--primary);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* 演示控制 */
+    .demo-controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    .demo-btn {
+      padding: 8px 12px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- 演示控制 -->
+  <div class="demo-controls">
+    <button class="demo-btn" onclick="showPage('welcome')">欢迎页</button>
+    <button class="demo-btn" onclick="showPage('quiz')">评估</button>
+    <button class="demo-btn" onclick="showPage('route')">路线</button>
+    <button class="demo-btn" onclick="showPage('chat')">对话</button>
+  </div>
+
+  <!-- 页面 1: 欢迎页 -->
+  <div class="welcome-page container" id="page-welcome">
+    <div class="welcome-header">
+      <div class="welcome-logo">🎯</div>
+      <h1 class="welcome-title">一念智能 AI 教练</h1>
+      <p class="welcome-subtitle">21 天，从零到一<br>开启你的 AI 学习之旅</p>
+    </div>
+
+    <div class="welcome-features">
+      <div class="feature-item">
+        <div class="feature-icon blue">📚</div>
+        <div class="feature-text">
+          <div class="feature-title">个性化学习路线</div>
+          <div class="feature-desc">根据你的基础定制专属计划</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon orange">🤖</div>
+        <div class="feature-text">
+          <div class="feature-title">1 对 1 AI 辅导</div>
+          <div class="feature-desc">随时提问，即时解答</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon green">✅</div>
+        <div class="feature-text">
+          <div class="feature-title">实战项目驱动</div>
+          <div class="feature-desc">学完就能用，用就能见效</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-footer">
+      <button class="btn btn-primary" onclick="showPage('quiz')">开始免费评估</button>
+      <p style="text-align: center; font-size: 13px; color: var(--text-light); margin-top: 16px;">
+        已有 12,847 人开始学习
+      </p>
+    </div>
+  </div>
+
+  <!-- 页面 2: 评估问卷 -->
+  <div class="quiz-page" id="page-quiz">
+    <div class="quiz-header">
+      <div class="quiz-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 20%"></div>
+        </div>
+        <span class="progress-text" id="progress-text">1/5</span>
+      </div>
+    </div>
+
+    <div class="quiz-question">
+      <div class="question-number">问题 1 / 共 5 题</div>
+      <div class="question-text">你之前接触过 AI 工具吗？</div>
+      <div class="options">
+        <div class="option" onclick="selectOption(this)">
+          <div class="option-radio"></div>
+          <span>完全没接触过，零基础</span>
+        </div>
+        <div class="option" onclick="selectOption(this)">
+          <div class="option-radio"></div>
+          <span>听说过，但没用过</span>
+        </div>
+        <div class="option selected" onclick="selectOption(this)">
+          <div class="option-radio"></div>
+          <span>用过 ChatGPT 等工具</span>
+        </div>
+        <div class="option" onclick="selectOption(this)">
+          <div class="option-radio"></div>
+          <span>经常使用，比较熟悉</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-footer">
+      <button class="btn btn-primary" onclick="showPage('route')">下一题</button>
+    </div>
+  </div>
+
+  <!-- 页面 3: 推荐路线 -->
+  <div class="route-page" id="page-route">
+    <div class="route-header">
+      <div class="route-badge">✨ 为你定制</div>
+      <h2 class="route-title">21 天 AI 入门路线</h2>
+      <p class="route-desc">根据你的基础，我们推荐这条学习路径</p>
+    </div>
+
+    <div class="route-timeline">
+      <div class="timeline-item">
+        <div class="timeline-day completed">✓</div>
+        <div class="timeline-content">
+          <div class="timeline-title">第 1-3 天：认识 AI</div>
+          <div class="timeline-desc">了解 AI 是什么，能做什么，建立正确认知</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day completed">✓</div>
+        <div class="timeline-content">
+          <div class="timeline-title">第 4-7 天：提示词基础</div>
+          <div class="timeline-desc">学会和 AI 对话，写出高质量提示词</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day current">8</div>
+        <div class="timeline-content">
+          <div class="timeline-title">第 8-14 天：实战应用</div>
+          <div class="timeline-desc">写作、绘图、数据分析，边学边做</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-day">15-21</div>
+        <div class="timeline-content">
+          <div class="timeline-title">第 15-21 天：项目实战</div>
+          <div class="timeline-desc">完成一个完整的 AI 应用项目</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="route-footer">
+      <button class="btn btn-primary" onclick="showPage('chat')">开始第 1 天学习</button>
+    </div>
+  </div>
+
+  <!-- 页面 4: AI 对话界面 -->
+  <div class="chat-page" id="page-chat">
+    <div class="chat-header">
+      <div class="chat-avatar">AI</div>
+      <div class="chat-info">
+        <div class="chat-name">AI 教练</div>
+        <div class="chat-status">在线</div>
+      </div>
+    </div>
+
+    <div class="chat-messages">
+      <div class="message ai">
+        <div class="message-avatar">AI</div>
+        <div>
+          <div class="message-content">
+            你好！我是你的 AI 教练 👋<br><br>
+            看到你已经是第 8 天了，今天我们来学习如何用 AI 做数据分析。<br><br>
+            准备好了吗？
+          </div>
+          <div class="message-time">12:00</div>
+        </div>
+      </div>
+
+      <div class="message user">
+        <div>
+          <div class="message-content">
+            准备好了！
+          </div>
+          <div class="message-time">12:01</div>
+        </div>
+        <div class="message-avatar">我</div>
+      </div>
+
+      <div class="message ai">
+        <div class="message-avatar">AI</div>
+        <div>
+          <div class="message-content">
+            太好了！今天我们分三步走：<br><br>
+            1️⃣ 了解数据分析的基本概念<br>
+            2️⃣ 学习用 AI 处理 Excel 数据<br>
+            3️⃣ 实战：分析一份销售数据<br><br>
+            你想先从哪个开始？
+          </div>
+          <div class="message-time">12:01</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" placeholder="输入消息...">
+      <button class="chat-send">➤</button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== API 配置 ====================
+    const API_URL = 'https://cloud.fastgpt.cn/api/v1/chat/completions';
+    const API_KEY = 'fastgpt-aP27CGFGRH0UFIg0Oao2o9bPn2QaSOTXWkFgjBqqb9wbMKckKGKPeRHuzpV4Zy';
+    
+    // ==================== 状态 ====================
+    let currentStep = 0;
+    let answers = [];
+    let recommendedRoute = '';
+    let chatHistory = [];
+    
+    // ==================== 页面导航 ====================
+    function showPage(pageName) {
+      document.querySelectorAll('.welcome-page, .quiz-page, .route-page, .chat-page').forEach(page => {
+        page.style.display = 'none';
+      });
+
+      const targetPage = document.getElementById('page-' + pageName);
+      if (targetPage) {
+        targetPage.style.display = pageName === 'welcome' ? 'flex' : 'block';
+        if (pageName === 'chat') {
+          targetPage.style.display = 'block';
+          initChat();
+        }
+      }
+    }
+
+    function selectOption(element) {
+      element.parentElement.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      
+      // 记录答案
+      const value = element.getAttribute('data-value');
+      const questionIndex = currentStep;
+      answers[questionIndex] = value;
+    }
+
+    function nextQuestion() {
+      if (currentStep < 4) {
+        currentStep++;
+        renderQuiz();
+      } else {
+        showRecommendation();
+      }
+    }
+
+    function showRecommendation() {
+      recommendedRoute = calculateRoute();
+      document.getElementById('route-title').textContent = 
+        recommendedRoute === 'A' ? '📚 从零开始路线' :
+        recommendedRoute === 'B' ? '🚀 快速上手路线' : '⚡ 深度应用路线';
+      showPage('route');
+    }
+
+    function calculateRoute() {
+      // 简单的推荐算法
+      const q1 = answers[0]; // 经验
+      const q3 = answers[2]; // 时间
+      if (q1 === 'never' || q3 === '10min' || q3 === '30min') return 'A';
+      if (q1 === 'sometimes' || q1 === 'often') return 'B';
+      return 'C';
+    }
+
+    function startLearning() {
+      showPage('chat');
+    }
+
+    // ==================== AI 对话 ====================
+    function initChat() {
+      const welcomeMsg = '你好！我是你的 AI 教练 👋\n\n根据你的评估结果，我为你推荐了路线' + 
+        (recommendedRoute === 'A' ? '「从零开始」' : recommendedRoute === 'B' ? '「快速上手」' : '「深度应用」') +
+        '。\n\n今天我们从第 1 天开始：了解 AI 能做什么。\n\n准备好了吗？';
+      
+      addChatMessage('ai', welcomeMsg);
+    }
+
+    async function sendMessage() {
+      const input = document.querySelector('.chat-input');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      addChatMessage('user', message);
+      input.value = '';
+      
+      // 调用 API
+      showTyping();
+      const reply = await callAI(message);
+      hideTyping();
+      addChatMessage('ai', reply);
+    }
+
+    async function callAI(message) {
+      chatHistory.push({ role: 'user', content: message });
+      
+      const messages = [
+        { role: 'system', content: '你是小智，一念智能的 AI 教练。帮助用户从零开始学习 AI。' },
+        ...chatHistory
+      ];
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            stream: false,
+            detail: false,
+            messages
+          })
+        });
+        
+        const data = await response.json();
+        const reply = data.choices?.[0]?.message?.content || '抱歉，我遇到了一些问题。';
+        chatHistory.push({ role: 'assistant', content: reply });
+        return reply;
+      } catch (e) {
+        return '网络错误，请稍后重试。';
+      }
+    }
+
+    function addChatMessage(role, content) {
+      const container = document.querySelector('.chat-messages');
+      const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      
+      if (role === 'ai') {
+        div.innerHTML = `
+          <div class="message-avatar">AI</div>
+          <div>
+            <div class="message-content">${content.replace(/\n/g, '<br>')}</div>
+            <div class="message-time">${time}</div>
+          </div>
+        `;
+      } else {
+        div.innerHTML = `
+          <div>
+            <div class="message-content">${content}</div>
+            <div class="message-time">${time}</div>
+          </div>
+          <div class="message-avatar">我</div>
+        `;
+      }
+      
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+      const container = document.querySelector('.chat-messages');
+      const div = document.createElement('div');
+      div.className = 'message ai';
+      div.id = 'typing';
+      div.innerHTML = `
+        <div class="message-avatar">AI</div>
+        <div>
+          <div class="message-content" style="color: var(--text-gray);">正在输入...</div>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById('typing');
+      if (typing) typing.remove();
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+
+    // ==================== 问卷渲染 ====================
+    function renderQuiz() {
+      const questions = [
+        { q: '你之前用过 AI 工具吗？（如 ChatGPT、Claude 等）', options: [{text: '从来没用过', val: 'never'}, {text: '用过一两次', val: 'once'}, {text: '偶尔在用', val: 'sometimes'}, {text: '经常在用', val: 'often'}] },
+        { q: '你想用 AI 来做什么？', options: [{text: '写文章、写报告', val: 'writing'}, {text: '做表格、数据分析', val: 'data'}, {text: '出点子、头脑风暴', val: 'idea'}, {text: '写代码、自动化', val: 'code'}] },
+        { q: '你每天能投入多少时间学习 AI？', options: [{text: '10 分钟以下', val: '10min'}, {text: '10-30 分钟', val: '30min'}, {text: '30 分钟-1 小时', val: '1hour'}, {text: '1 小时以上', val: 'more'}] },
+        { q: '你学习 AI 的主要目的是？', options: [{text: '提升工作效率', val: 'work'}, {text: '个人成长', val: 'growth'}, {text: '做副业/创业', val: 'business'}, {text: '纯粹好奇', val: 'curious'}] },
+        { q: '你觉得学习 AI 最大的困难是？', options: [{text: '不知道从哪里开始', val: 'start'}, {text: '看不懂术语', val: 'terms'}, {text: '没人教', val: 'guide'}, {text: '怕学不会', val: 'fear'}] }
+      ];
+      
+      const q = questions[currentStep];
+      document.getElementById('quiz-question').textContent = q.q;
+      document.getElementById('quiz-progress').textContent = `${currentStep + 1}/5`;
+      document.getElementById('quiz-progress-bar').style.width = `${((currentStep + 1) / 5) * 100}%`;
+      
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = '';
+      q.options.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.setAttribute('data-value', opt.val);
+        div.textContent = opt.text;
+        div.onclick = () => selectOption(div);
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      showPage('welcome');
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
