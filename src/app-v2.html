@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一念智能 AI 教练 - 产品 1.0 v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, 'PingFang SC', sans-serif;
+    background: #F5F5F5;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ========== 最左侧窄图标栏 ========== */
+  .icon-bar {
+    width: 60px;
+    background: #FFFFFF;
+    border-right: 1px solid #E5E5E5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 8px;
+  }
+
+  .icon-item {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 18px;
+    color: #9CA3AF;
+  }
+
+  .icon-item:hover {
+    background: #F3F4F6;
+    color: #1A1A1A;
+  }
+
+  .icon-item.active {
+    background: #E8F0FE;
+    color: #3370FF;
+  }
+
+  .icon-divider {
+    width: 32px;
+    height: 1px;
+    background: #E5E5E5;
+    margin: 8px 0;
+  }
+
+  /* ========== 左侧栏 ========== */
+  .sidebar {
+    width: 280px;
+    background: #FFFFFF;
+    border-right: 1px solid #E5E5E5;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid #EBEBEB;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #FF9D42 0%, #F57C00 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* 橙色横幅按钮 */
+  .office-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #FF9D42 0%, #F57C00 100%);
+    border: none;
+    border-radius: 16px;
+    color: white;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .office-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 124, 0, 0.3);
+  }
+
+  .office-btn-main {
+    font-size: 15px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .office-btn-sub {
+    font-size: 12px;
+    opacity: 0.9;
+    display: block;
+  }
+
+  /* 搜索框 */
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #F7F8FA;
+    border: 1px solid #EBEBEB;
+    border-radius: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within {
+    border-color: #3370FF;
+  }
+
+  .search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #1A1A1A;
+    width: 100%;
+  }
+
+  .search-box input::placeholder {
+    color: #9CA3AF;
+  }
+
+  .search-icon {
+    color: #9CA3AF;
+    font-size: 16px;
+  }
+
+  /* 标签切换 */
+  .tabs {
+    display: flex;
+    padding: 12px 16px 0;
+    gap: 8px;
+    border-bottom: 1px solid #EBEBEB;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #9CA3AF;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .tab:hover {
+    color: #1A1A1A;
+  }
+
+  .tab.active {
+    color: #1A1A1A;
+    font-weight: 600;
+    background: #F7F8FA;
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #3370FF;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* 联系人列表 */
+  .contact-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 8px;
+  }
+
+  .contact-group {
+    margin-bottom: 8px;
+  }
+
+  .contact-group-title {
+    font-size: 11px;
+    color: #9CA3AF;
+    padding: 12px 16px 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 12px;
+    margin: 0 8px;
+  }
+
+  .contact-item:hover {
+    background: #F7F8FA;
+  }
+
+  .contact-item.active {
+    background: #E8F0FE;
+  }
+
+  .contact-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .avatar-admin { background: linear-gradient(135deg, #667EEA, #764BA2); }
+  .avatar-tech { background: linear-gradient(135deg, #6C63FF, #4FACFE); }
+  .avatar-biz { background: linear-gradient(135deg, #11998E, #38EF7D); }
+  .avatar-ai { background: linear-gradient(135deg, #FF9D42, #F57C00); }
+
+  .contact-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .contact-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 4px;
+  }
+
+  .contact-title {
+    font-size: 12px;
+    color: #9CA3AF;
+  }
+
+  .contact-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10B981;
+  }
+
+  /* ========== 中央聊天区 ========== */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+    min-width: 0;
+  }
+
+  .chat-header {
+    height: 72px;
+    padding: 0 24px;
+    border-bottom: 1px solid #F0F0F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .chat-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6C63FF, #4FACFE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .chat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .chat-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+
+  .chat-status {
+    font-size: 12px;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chat-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #9CA3AF;
+    font-size: 18px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .header-action-btn:hover {
+    background: #F3F4F6;
+    color: #1A1A1A;
+  }
+
+  /* 消息区 */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #F9FAFB;
+  }
+
+  .msg {
+    display: flex;
+    gap: 12px;
+    max-width: 75%;
+  }
+
+  .msg.user {
+    flex-direction: row-reverse;
+    margin-left: auto;
+  }
+
+  .msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .msg.coach .msg-avatar { background: linear-gradient(135deg, #6C63FF, #4FACFE); }
+  .msg.user .msg-avatar { background: #1A1A1A; }
+
+  .msg-bubble {
+    padding: 16px 20px;
+    font-size: 15px;
+    line-height: 1.7;
+    border-radius: 20px;
+    color: #1A1A1A;
+  }
+
+  .msg.coach .msg-bubble {
+    background: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    border-radius: 20px 20px 20px 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .msg.user .msg-bubble {
+    background: #3370FF;
+    color: #FFFFFF;
+    border-radius: 20px 20px 4px 20px;
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 6px;
+  }
+
+  .msg.user .msg-time {
+    text-align: right;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* 底部大输入区 */
+  .input-section {
+    padding: 20px 24px 24px;
+    background: #FFFFFF;
+    border-top: 1px solid #EBEBEB;
+  }
+
+  .input-container {
+    background: #F7F8FA;
+    border: 2px solid #EBEBEB;
+    border-radius: 20px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .input-container:focus-within {
+    border-color: #3370FF;
+    background: #FFFFFF;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .input-field {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    outline: none;
+    resize: none;
+    min-height: 60px;
+    max-height: 200px;
+    font-family: inherit;
+    line-height: 1.6;
+  }
+
+  .send-btn {
+    padding: 14px 28px;
+    background: #3370FF;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover {
+    background: #2860E8;
+    transform: translateY(-1px);
+  }
+
+  .send-btn:active {
+    transform: translateY(0);
+  }
+
+  /* 工具栏 */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 0 16px;
+    border-bottom: 1px solid #F0F0F0;
+    margin-bottom: 12px;
+  }
+
+  .tool-item {
+    font-size: 13px;
+    color: #6B7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: all 0.15s;
+    background: #F7F8FA;
+  }
+
+  .tool-item:hover {
+    background: #EBEBEB;
+    color: #1A1A1A;
+  }
+
+  .tool-icon {
+    font-size: 16px;
+  }
+
+  /* 页面状态 */
+  .page { display: none; }
+  .page.active { display: flex; }
+
+  /* 欢迎页 */
+  .welcome-page {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #FF9D42 0%, #F57C00 100%);
+  }
+
+  .welcome-page.active {
+    display: flex;
+  }
+
+  .welcome-logo {
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+  }
+
+  .welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .welcome-subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.9);
+    text-align: center;
+    margin-bottom: 40px;
+    max-width: 300px;
+  }
+
+  .welcome-btn {
+    padding: 18px 56px;
+    background: white;
+    color: #F57C00;
+    border: none;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .welcome-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+  }
+
+  /* 评估问卷页 */
+  .quiz-page {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    background: #F9FAFB;
+  }
+
+  .quiz-page.active {
+    display: flex;
+  }
+
+  .quiz-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    width: 100%;
+  }
+
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #E5E5E5;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF9D42 0%, #F57C00 100%);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-text {
+    font-size: 14px;
+    color: #9CA3AF;
+    font-weight: 500;
+  }
+
+  .question-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+
+  .question-number {
+    font-size: 13px;
+    color: #FF9D42;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .question-text {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1A1A1A;
+    line-height: 1.5;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    padding: 18px 20px;
+    background: #FFFFFF;
+    border: 2px solid #E5E5E5;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    color: #1A1A1A;
+  }
+
+  .option:hover {
+    border-color: #FF9D42;
+    background: #FFF8F0;
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    border-color: #FF9D42;
+    background: #FFF8F0;
+  }
+
+  .option-radio {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #E5E5E5;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .option.selected .option-radio {
+    border-color: #FF9D42;
+    background: #FF9D42;
+  }
+
+  .option.selected .option-radio::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #E5E5E5;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D1D5DB;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <!-- 最左侧图标栏 -->
+    <div class="icon-bar">
+      <div class="icon-item active" title="消息">💬</div>
+      <div class="icon-item" title="项目组">📁</div>
+      <div class="icon-divider"></div>
+      <div class="icon-item" title="搜索">🔍</div>
+      <div class="icon-item" title="添加">➕</div>
+      <div class="icon-divider"></div>
+      <div class="icon-item" title="视频会议">📹</div>
+      <div class="icon-item" title="日历">📅</div>
+      <div class="icon-item" title="云文档">📄</div>
+      <div class="icon-divider"></div>
+      <div class="icon-item" title="设置">⚙️</div>
+    </div>
+
+    <!-- 左侧栏 -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-text">
+          <div class="logo-icon">一</div>
+          一念智能
+        </div>
+        
+        <!-- 橙色横幅按钮 -->
+        <button class="office-btn">
+          <span class="office-btn-main">🏢 进入'极野办公区'</span>
+          <span class="office-btn-sub">开启高效协作</span>
+        </button>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索联系人、消息...">
+        </div>
+      </div>
+
+      <!-- 标签切换 -->
+      <div class="tabs">
+        <div class="tab active">消息</div>
+        <div class="tab">项目组</div>
+      </div>
+
+      <!-- 联系人列表 -->
+      <div class="contact-list">
+        <div class="contact-group">
+          <div class="contact-group-title">AI 教练</div>
+          <div class="contact-item active" onclick="switchChat('coach')">
+            <div class="contact-avatar avatar-ai">智</div>
+            <div class="contact-info">
+              <div class="contact-name">小智</div>
+              <div class="contact-title">AI 学习教练</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+        </div>
+
+        <div class="contact-group">
+          <div class="contact-group-title">管理</div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-admin">卢</div>
+            <div class="contact-info">
+              <div class="contact-name">卢祉辛</div>
+              <div class="contact-title">CEO</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-admin">N</div>
+            <div class="contact-info">
+              <div class="contact-name">Neo</div>
+              <div class="contact-title">CTO</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+        </div>
+
+        <div class="contact-group">
+          <div class="contact-group-title">技术</div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-tech">F</div>
+            <div class="contact-info">
+              <div class="contact-name">Flin</div>
+              <div class="contact-title">前端工程师</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-tech">I</div>
+            <div class="contact-info">
+              <div class="contact-name">Iris</div>
+              <div class="contact-title">设计师</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+        </div>
+
+        <div class="contact-group">
+          <div class="contact-group-title">业务</div>
+          <div class="contact-item">
+            <div class="contact-avatar avatar-biz">C</div>
+            <div class="contact-info">
+              <div class="contact-name">Center</div>
+              <div class="contact-title">运营总监</div>
+            </div>
+            <div class="contact-status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 欢迎页 -->
+    <div class="welcome-page active" id="welcomePage">
+      <div class="welcome-logo">🧠</div>
+      <div class="welcome-title">一念智能 AI 教练</div>
+      <div class="welcome-subtitle">21 天，从 0 到 1 学会用 AI</div>
+      <button class="welcome-btn" onclick="startAssessment()">开始评估</button>
+    </div>
+
+    <!-- 评估问卷页 -->
+    <div class="quiz-page" id="quizPage">
+      <div class="quiz-container">
+        <div class="quiz-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+          </div>
+          <div class="progress-text" id="progressText">1/5</div>
+        </div>
+        <div class="question-card">
+          <div class="question-number">问题 1 / 共 5 题</div>
+          <div class="question-text" id="questionText">你之前用过 AI 工具吗？</div>
+          <div class="options" id="options"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 聊天页 -->
+    <div class="chat-area page" id="chatPage">
+      <div class="chat-header">
+        <div class="chat-title-group">
+          <div class="chat-avatar">智</div>
+          <div class="chat-info">
+            <div class="chat-name">小智</div>
+            <div class="chat-status">
+              <span class="chat-status-dot"></span>
+              AI 学习教练 · 在线
+            </div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="header-action-btn">📞</button>
+          <button class="header-action-btn">📹</button>
+          <button class="header-action-btn">⋯</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="input-section">
+        <div class="toolbar">
+          <div class="tool-item">
+            <span class="tool-icon">📎</span>
+            附件
+          </div>
+          <div class="tool-item">
+            <span class="tool-icon">😊</span>
+            表情
+          </div>
+          <div class="tool-item">
+            <span class="tool-icon">📋</span>
+            历史
+          </div>
+          <div class="tool-item">
+            <span class="tool-icon">🔄</span>
+            重置
+          </div>
+        </div>
+        <div class="input-container">
+          <div class="input-row">
+            <textarea class="input-field" id="chatInput" placeholder="输入消息..." rows="2"></textarea>
+            <button class="send-btn" onclick="sendMessage()">发送</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 评估问题
+    const questions = [
+      {
+        q: '你之前用过 AI 工具吗？',
+        options: ['从来没用过', '用过一两次', '偶尔在用', '经常在用']
+      },
+      {
+        q: '你想用 AI 来做什么？',
+        options: ['写文章、写报告', '做表格、数据分析', '出点子、头脑风暴', '写代码、自动化']
+      },
+      {
+        q: '你每天能投入多少时间学习 AI？',
+        options: ['10 分钟以下', '10-30 分钟', '30 分钟 -1 小时', '1 小时以上']
+      },
+      {
+        q: '你学习 AI 的主要目的是？',
+        options: ['提升工作效率', '个人成长', '做副业/创业', '纯粹好奇']
+      },
+      {
+        q: '你觉得学习 AI 最大的困难是？',
+        options: ['不知道从哪里开始', '看不懂术语', '没人教', '怕学不会']
+      }
+    ];
+
+    let currentQuestion = 0;
+    let answers = [];
+    let chatHistory = [];
+
+    // 开始评估
+    function startAssessment() {
+      document.getElementById('welcomePage').classList.remove('active');
+      document.getElementById('quizPage').classList.add('active');
+      renderQuestion();
+    }
+
+    // 渲染问题
+    function renderQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('questionText').textContent = q.q;
+      document.getElementById('progressText').textContent = `${currentQuestion + 1}/${questions.length}`;
+      document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+      document.querySelector('.question-number').textContent = `问题 ${currentQuestion + 1} / 共 ${questions.length} 题`;
+
+      const optionsHtml = q.options.map((opt, i) => `
+        <div class="option" onclick="selectOption(${i})">
+          <div class="option-radio"></div>
+          <span>${opt}</span>
+        </div>
+      `).join('');
+      document.getElementById('options').innerHTML = optionsHtml;
+    }
+
+    // 选择选项
+    function selectOption(index) {
+      document.querySelectorAll('.option').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+      });
+      answers[currentQuestion] = index;
+
+      setTimeout(() => {
+        if (currentQuestion < questions.length - 1) {
+          currentQuestion++;
+          renderQuestion();
+        } else {
+          completeAssessment();
+        }
+      }, 300);
+    }
+
+    // 完成评估
+    function completeAssessment() {
+      const route = calculateRoute();
+      document.getElementById('quizPage').classList.remove('active');
+      document.getElementById('chatPage').classList.add('active');
+
+      // 显示欢迎消息
+      const messages = document.getElementById('messages');
+      messages.innerHTML = `
+        <div class="msg coach">
+          <div class="msg-avatar">智</div>
+          <div>
+            <div class="msg-bubble">
+              🎉 评估完成！根据你的情况，推荐你走<strong>${route.name}</strong>路线。
+              <br><br>
+              ${route.reason}
+              <br><br>
+              准备好了吗？我们开始第一步！
+            </div>
+            <div class="msg-time">${getTime()}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 计算路线
+    function calculateRoute() {
+      if (answers[0] === 0) {
+        return { name: '从零开始', reason: '你刚从零开始，我们从最基础的概念讲起。', days: 21 };
+      } else if (answers[0] <= 2) {
+        return { name: '快速上手', reason: '你有一定基础，我们直接教你最实用的技能。', days: 14 };
+      } else {
+        return { name: '深度应用', reason: '你已经是进阶用户，我们来探索高级技巧。', days: 21 };
+      }
+    }
+
+    // 发送消息
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const messages = document.getElementById('messages');
+      
+      // 显示用户消息
+      const userHtml = `
+        <div class="msg user">
+          <div class="msg-avatar">我</div>
+          <div>
+            <div class="msg-bubble">${escapeHtml(message)}</div>
+            <div class="msg-time">${getTime()}</div>
+          </div>
+        </div>
+      `;
+      messages.insertAdjacentHTML('beforeend', userHtml);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      // 显示加载中
+      const loadingId = 'loading-' + Date.now();
+      const loadingHtml = `
+        <div class="msg coach" id="${loadingId}">
+          <div class="msg-avatar">智</div>
+          <div>
+            <div class="msg-bubble">思考中...</div>
+          </div>
+        </div>
+      `;
+      messages.insertAdjacentHTML('beforeend', loadingHtml);
+      messages.scrollTop = messages.scrollHeight;
+
+      // 调用 API
+      try {
+        const response = await fetch('https://cloud.fastgpt.cn/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer fastgpt-aP27CGFGRH0UFIg0Oao2o9bPn2QaSOTXWkFgjBqqb9wbMKckKGKPeRHuzpV4Zy',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            stream: false,
+            detail: false,
+            messages: [
+              { role: 'system', content: '你是小智，一念智能的 AI 学习教练。温暖、直接、鼓励用户行动。' },
+              ...chatHistory,
+              { role: 'user', content: message }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        const reply = data.choices?.[0]?.message?.content || '抱歉，我刚才走神了，能再说一遍吗？';
+
+        // 更新回复
+        document.getElementById(loadingId).remove();
+        const coachHtml = `
+          <div class="msg coach">
+            <div class="msg-avatar">智</div>
+            <div>
+              <div class="msg-bubble">${formatReply(reply)}</div>
+              <div class="msg-time">${getTime()}</div>
+            </div>
+          </div>
+        `;
+        messages.insertAdjacentHTML('beforeend', coachHtml);
+        messages.scrollTop = messages.scrollHeight;
+
+        // 保存历史
+        chatHistory.push({ role: 'user', content: message });
+        chatHistory.push({ role: 'assistant', content: reply });
+
+      } catch (error) {
+        document.getElementById(loadingId).remove();
+        const errorHtml = `
+          <div class="msg coach">
+            <div class="msg-avatar">智</div>
+            <div>
+              <div class="msg-bubble">网络有点小差，请稍后再试～</div>
+              <div class="msg-time">${getTime()}</div>
+            </div>
+          </div>
+        `;
+        messages.insertAdjacentHTML('beforeend', errorHtml);
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatReply(text) {
+      return text.replace(/\n/g, '<br>');
+    }
+
+    function getTime() {
+      const now = new Date();
+      return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+
+    function switchChat(type) {
+      if (type === 'coach') {
+        document.getElementById('welcomePage').classList.remove('active');
+        document.getElementById('chatPage').classList.add('active');
+      }
+    }
+
+    // 回车发送
+    document.getElementById('chatInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // 标签切换
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // 图标栏点击
+    document.querySelectorAll('.icon-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.icon-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
